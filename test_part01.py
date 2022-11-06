@@ -52,13 +52,8 @@ def test_download():
 def test_calculation():
     """Test zpracovani dat pres mesic a pres rok"""
     data = part01.download_data()
-
     m = part01.get_avg_temp(data, month=5)
     assert m == pytest.approx(14.919354)
     y = part01.get_avg_temp(data, year=2020)
 
     assert y == pytest.approx(10.936066)
-
-
-if __name__ == "__main__":
-    test_generate_fn()

@@ -18,7 +18,7 @@ from typing import List
 
 
 def integrate(x: np.array, y: np.array) -> float:
-    return np.sum(np.multiply(np.subtract(x[1:], x[:-1]), np.add(y[:-1], y[1:]) / 2))
+    return np.sum(np.multiply(np.subtract(x[1:], x[:-1]), np.divide(np.add(y[:-1], y[1:]), 2)))
 
 
 def generate_graph(a: List[float], show_figure: bool = False, save_path: str | None=None):
@@ -82,29 +82,46 @@ def generate_sinus(show_figure: bool=False, save_path: str | None=None):
 
 
 def download_data(url="https://ehw.fit.vutbr.cz/izv/temp.html"):
-    soup = ""
     with requests.get(url) as f:
-        if not f.ok:
-            return
-
+        # raise exception when HTTP code is not OK (200)
+        f.raise_for_status()
         soup = BeautifulSoup(f.text, "html.parser")
     
     lines = soup.find_all("tr")
     data = []
     for line in lines:
-        entry= {}
-        ps = line.find_all("p")
-        entry["year"] = int(ps[0].string)
-        entry["month"] = int(ps[1].string)
-        arr = np.array([])
-        for p in ps[2:]:
-            arr = np.append(arr, float(p.string.replace(',', '.')))
-
-        entry["temp"] = arr
+        year, month, *rest = line.find_all("p")
+        temp = [float(val.contents[0].replace(',', '.')) for val in rest]
+        entry = {}
+        entry['year'] = int(year.contents[0])
+        entry['month'] = int(month.contents[0])
+        entry['temp'] = np.asarray(temp)
         data.append(entry)
 
     return data
 
 
 def get_avg_temp(data, year=None, month=None) -> float:
-    pass
+    if year and month:
+        filtered = filter(lambda x: x['year'] == year and x['month'] == month, data)
+    elif year is None and month:
+        filtered = filter(lambda x: x['month'] == month, data)
+    elif year and month is None:
+        filtered = filter(lambda x: x['year'] == year, data)
+    else:
+        filtered = data
+
+    sum = 0
+    days = 0
+    for f in filtered:
+        sum += np.sum(f['temp'])
+        days += f['temp'].size
+
+    return sum / days
+
+
+if __name__ == "__main__":
+    data = download_data()
+
+    m = get_avg_temp(data)
+    print(m)
