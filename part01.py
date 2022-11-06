@@ -18,31 +18,45 @@ from typing import List
 
 
 def integrate(x: np.array, y: np.array) -> float:
+    """Return value of definite integral
+
+    Keyword arguments:
+    x -- ordered vector from lowest to highest
+    y -- vector of values of integrated function in f(x)
+    """
     return np.sum(np.multiply(np.subtract(x[1:], x[:-1]), np.divide(np.add(y[:-1], y[1:]), 2)))
 
 
 def generate_graph(a: List[float], show_figure: bool = False, save_path: str | None=None):
+    """Generate graph of functions with variable parameter
+
+
+    Keyword arguments:
+    a -- list of variable parameters for each plotted function
+    show_figure -- Show figure or save to a file
+    save_path -- Save path for figure
+    """
     x = np.linspace(-3, 3, 10000)
     fx = np.multiply(np.power(x, 2), np.array(a).reshape(-1, 1))
 
-    fig, ax = plt.subplots()
-    ax.plot(x, fx[0], label=r'$\gamma_{1.0}(x)$')
-    ax.plot(x, fx[1], label=r'$\gamma_{2.0}(x)$')
-    ax.plot(x, fx[2], label=r'$\gamma_{-2.0}(x)$')
-    ax.fill_between(x, fx[0], 0, alpha=0.1)
-    ax.fill_between(x, fx[1], 0, alpha=0.1)
-    ax.fill_between(x, fx[2], 0, alpha=0.1)
+    fig, ax = plt.subplots(figsize=(7, 4))
+    for i, f in enumerate(fx):
+        ax.plot(x, f, label=r'$\gamma_{%.1f}(x)$' % (a[i]))
+        ax.fill_between(x, f, 0, alpha=0.1)
+
     ax.set_xlabel('x')
     ax.set_ylabel(r'$f_a(x)$')
-    ax.annotate(r'$\int f_{1.0}(x)dx$', xy=(3, 8.5), xycoords="data")
-    ax.annotate(r'$\int f_{2.0}(x)dx$', xy=(3, 17.5), xycoords="data")
-    ax.annotate(r'$\int f_{-2.0}(x)dx$', xy=(3, -18.5), xycoords="data")
-    ax.legend(loc='lower center', bbox_to_anchor=(0.6, 1.0), ncol=3)
-    ax.set_xlim([-3, max(x)])
-    ax.set_ylim([-20, 20])
+    ax.legend(loc='lower center', bbox_to_anchor=(0.6, 1.0), ncol=len(a))
     ax.spines["top"].set_bounds(-3, 4)
     ax.spines["bottom"].set_bounds(-3, 4)
     ax.spines["right"].set_position(("data", 4))
+    ax.set_xlim([-3, max(x)])
+    ax.set_ylim([-20, 20])
+    fig.tight_layout()
+
+    ax.annotate(r'$\int f_{1.0}(x)dx$', xy=(3, 8.5), xycoords="data")
+    ax.annotate(r'$\int f_{2.0}(x)dx$', xy=(3, 17.5), xycoords="data")
+    ax.annotate(r'$\int f_{-2.0}(x)dx$', xy=(3, -18.5), xycoords="data")
 
     if show_figure:
         plt.show()
@@ -51,6 +65,12 @@ def generate_graph(a: List[float], show_figure: bool = False, save_path: str | N
 
 
 def generate_sinus(show_figure: bool=False, save_path: str | None=None):
+    """Generate graphs of two different sine waves and their sum
+
+    Keyword arguments:
+    show_figure -- Show figure or save to a file
+    save_path -- Save path for figure
+    """
     t = np.linspace(0, 100, 10000)
     f1 = np.multiply(0.5, np.sin(np.multiply(np.pi / 50, t)))
     f2 = np.multiply(0.25, np.sin(np.multiply(np.pi, t)))
@@ -58,7 +78,7 @@ def generate_sinus(show_figure: bool=False, save_path: str | None=None):
 
     ylabels = [r'$f_1(x)$', r'$f_2(x)$', r'$f_1(x) + f_2(x)$']
 
-    fig, axes = plt.subplots(ncols=1, nrows=3, constrained_layout=True)
+    fig, axes = plt.subplots(figsize=(6, 7), ncols=1, nrows=3, constrained_layout=True)
     for i, ax in enumerate(axes):
         ax.set_xlim([0, max(t)])
         ax.set_xlabel('t')
@@ -82,6 +102,11 @@ def generate_sinus(show_figure: bool=False, save_path: str | None=None):
 
 
 def download_data(url="https://ehw.fit.vutbr.cz/izv/temp.html"):
+    """Return data from table represented as an array of dicts
+
+    Keyword arguments:
+    url -- source address
+    """
     with requests.get(url) as f:
         # raise exception when HTTP code is not OK (200)
         f.raise_for_status()
@@ -102,6 +127,15 @@ def download_data(url="https://ehw.fit.vutbr.cz/izv/temp.html"):
 
 
 def get_avg_temp(data, year=None, month=None) -> float:
+    """Return average temperature in selected timespan
+
+    All years and months are used by default.
+
+    Keyword arguments:
+    data -- parsed data from function download_data()
+    year -- selected year (default None)
+    month -- selected month (default None)
+    """
     if year and month:
         filtered = filter(lambda x: x['year'] == year and x['month'] == month, data)
     elif year is None and month:
@@ -118,10 +152,3 @@ def get_avg_temp(data, year=None, month=None) -> float:
         days += f['temp'].size
 
     return sum / days
-
-
-if __name__ == "__main__":
-    data = download_data()
-
-    m = get_avg_temp(data)
-    print(m)
