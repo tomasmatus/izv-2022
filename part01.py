@@ -43,6 +43,7 @@ def generate_graph(a: List[float], show_figure: bool = False, save_path: str | N
     for i, f in enumerate(fx):
         ax.plot(x, f, label=r'$\gamma_{%.1f}(x)$' % (a[i]))
         ax.fill_between(x, f, 0, alpha=0.1)
+        ax.annotate(r'$\int f_{%.1f}(x)dx$' % (a[i]), xy=(3, f[-1] - 0.5), xycoords="data")
 
     ax.set_xlabel('x')
     ax.set_ylabel(r'$f_a(x)$')
@@ -53,10 +54,6 @@ def generate_graph(a: List[float], show_figure: bool = False, save_path: str | N
     ax.set_xlim([-3, max(x)])
     ax.set_ylim([-20, 20])
     fig.tight_layout()
-
-    ax.annotate(r'$\int f_{1.0}(x)dx$', xy=(3, 8.5), xycoords="data")
-    ax.annotate(r'$\int f_{2.0}(x)dx$', xy=(3, 17.5), xycoords="data")
-    ax.annotate(r'$\int f_{-2.0}(x)dx$', xy=(3, -18.5), xycoords="data")
 
     if show_figure:
         plt.show()
