@@ -164,6 +164,7 @@ def plot_consequences(df: pd.DataFrame, fig_location: str = None,
                     show_figure: bool = False):
     pass
 
+
 if __name__ == "__main__":
     # zde je ukazka pouziti, tuto cast muzete modifikovat podle libosti
     # skript nebude pri testovani pousten primo, ale budou volany konkreni
