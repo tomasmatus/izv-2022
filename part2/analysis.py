@@ -162,7 +162,46 @@ def plot_direction(df: pd.DataFrame, fig_location: str = None,
 # Ukol 5: Následky v čase
 def plot_consequences(df: pd.DataFrame, fig_location: str = None,
                     show_figure: bool = False):
-    pass
+
+    def injury_to_text(row):
+        if row["p13a"] > 0:
+            return "Usmrcení"
+        if row["p13b"] > 0:
+            return "Těžké zranění"
+        if row["p13c"] > 0:
+            return "Lehké zranění"
+        else:
+            return "Žádné"
+
+    regions = ["OLK", "PAK", "VYS", "ZLK"]
+    df2 = df.copy()
+    df2 = df2[df2["region"].isin(regions)]
+    df2["injury"] = df2.apply(lambda row: injury_to_text(row), axis=1)
+
+    table = pd.pivot_table(df2, index=["date"], values="p9", columns=["injury", "region"], aggfunc="count")
+    table = table.drop(columns=["Žádné"])
+    table = table.resample('M').sum().stack().reset_index()
+    table = table.melt(["date", "region"], ["Lehké zranění", "Těžké zranění", "Usmrcení"], value_name="zraneni")
+
+    g = sns.relplot(data=table, x="date", y="zraneni",
+                    col="region", col_wrap=2, hue="injury",
+                    height=3.5, aspect=1.15,
+                    kind="line",
+                    facet_kws={"sharex": False})
+
+    g.set_xlabels("")
+    g.set(xticks=[f'20{year}-01' for year in range(16,23)], xmargin=0)
+    g.set_xticklabels([f'01/{year}' for year in range(16,23)])
+    g.set_ylabels("Počet nehod")
+    g.set_titles("Kraj: {col_name}")
+    g.legend.set(title="Druh srážky")
+    g.tight_layout()
+
+    if show_figure:
+        plt.show()
+
+    if fig_location:
+        g.savefig(fig_location, bbox_inches="tight", pad_inches=0.5)
 
 
 if __name__ == "__main__":
