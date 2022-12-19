@@ -30,10 +30,10 @@ def make_geo(df: pd.DataFrame) -> geopandas.GeoDataFrame:
 def plot_geo(gdf: geopandas.GeoDataFrame, fig_location: str = None,
              show_figure: bool = False):
     """ Vykresleni grafu s nehodami s alkoholem pro roky 2018-2021 """
-    geo = gdf.copy()
+    region = "JHM"
+    geo = gdf[gdf["region"] == region].copy().to_crs("EPSG:3857")
 
     # filter region and crashes with drugs or alcohol
-    geo = geo[geo["region"] == "JHM"].to_crs("EPSG:3857")
     geo = geo[(geo["p11"] >= 3) & (geo["date"].dt.year.isin([2018, 2019, 2020, 2021]))]
 
     # Subplots
@@ -43,7 +43,7 @@ def plot_geo(gdf: geopandas.GeoDataFrame, fig_location: str = None,
         geo[geo["date"].dt.year == year].plot(ax=ax_year, color="red", markersize=1, alpha=0.5)
 
         ax_year.set_axis_off()
-        ax_year.set_title(f"JHM kraj ({year})")
+        ax_year.set_title(f"{region} kraj ({year})")
         ctx.add_basemap(ax_year, crs=geo.crs.to_string(), source=ctx.providers.Stamen.TonerLite, attribution_size=6, alpha=0.9)
 
     plt.tight_layout()
