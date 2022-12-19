@@ -11,7 +11,11 @@ from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
 
 
 def make_geo(df: pd.DataFrame) -> geopandas.GeoDataFrame:
-    """ Konvertovani dataframe do geopandas.GeoDataFrame se spravnym kodovani"""
+    """Return parsed geopandas dataframe
+
+    Keyword arguments:
+    df -- pandas dataframe
+    """
 
     df2 = df.copy()
 
@@ -29,7 +33,14 @@ def make_geo(df: pd.DataFrame) -> geopandas.GeoDataFrame:
 
 def plot_geo(gdf: geopandas.GeoDataFrame, fig_location: str = None,
              show_figure: bool = False):
-    """ Vykresleni grafu s nehodami s alkoholem pro roky 2018-2021 """
+    """Generate 4 graphs showing location of crashes
+    that involve use of alcohol or drugs in years 2018 - 2021
+
+    Keyword arguments:
+    gdf -- parsed geopandas dataframe
+    fig_location -- path where to save generated graph (default: None)
+    show_figure -- show graph when it is generated (default: False)
+    """
     region = "JHM"
     geo = gdf[gdf["region"] == region].copy().to_crs("EPSG:3857")
 
@@ -57,7 +68,14 @@ def plot_geo(gdf: geopandas.GeoDataFrame, fig_location: str = None,
 
 def plot_cluster(gdf: geopandas.GeoDataFrame, fig_location: str = None,
                  show_figure: bool = False):
-    """ Vykresleni grafu s lokalitou vsech nehod v kraji shlukovanych do clusteru """
+    """Generate graph showing areas on map per number of crashes
+
+    Keyword arguments:
+    gdf -- parsed geopandas dataframe
+    fig_location -- path where to save generated graph (default: None)
+    show_figure -- show graph when it is generated (default: False)
+    """
+
     region = "ZLK"
     geo = gdf[gdf["region"] == region].copy().to_crs("EPSG:3857")
 
